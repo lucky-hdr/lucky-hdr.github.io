@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky High Dynamic Range Smartphone Imaging</title>
+  <meta name="description" content="LuckyHDR: Handheld HDR photography on smartphones by aligning and merging lucky pixels from bracketed exposures. SIGGRAPH 2026 / ACM TOG.">
+  <meta name="author" content="Baiang Li, Ruyu Yan, Ethan Tseng, Zhoutong Zhang, Adam Finkelstein, Jiawen Chen, Felix Heide">
+  <link rel="icon" href="favicon.svg" type="image/svg">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta property="og:title" content="Lucky High Dynamic Range Imaging">
+  <meta property="og:description" content="Handheld HDR photography on smartphones — no hallucination, no tripod. SIGGRAPH 2026 / ACM TOG.">
+  <meta property="og:image" content="og-image.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lucky High Dynamic Range Smartphone Imaging">
+  <meta name="twitter:description" content="Handheld HDR photography on smartphones — no hallucination, no tripod. SIGGRAPH 2026.">
+  <meta name="twitter:image" content="og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== NAVBAR ==================== -->
+<nav id="navbar" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">LuckyHDR</a>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#comparisons">Comparisons</a>
+      <a href="#quantitative">Results</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ==================== HERO ==================== -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-parallax" id="heroParallax">
+      <!-- Ken Burns crossfade slideshow: 5 gallery scenes cycle every 5s each -->
+      <div class="hero-slideshow">
+        <div class="hero-slide active" style="--delay: 0s"><img src="assets/images/gallery/IDG_20260106_173702_486/luckyhdr.jpg" alt="Times Square" draggable="false"></div>
+        <div class="hero-slide" style="--delay: 5s"><img src="assets/images/gallery/IDG_20260106_153819_947/luckyhdr.jpg" alt="Library Chandelier" draggable="false"></div>
+        <div class="hero-slide" style="--delay: 10s"><img src="assets/images/gallery/IDG_20260106_133914_466/luckyhdr.jpg" alt="Storefront Window" draggable="false"></div>
+        <div class="hero-slide" style="--delay: 15s"><img src="assets/images/gallery/IDG_20260117_153138_661/luckyhdr.jpg" alt="Rainbow Art" draggable="false"></div>
+        <div class="hero-slide" style="--delay: 20s"><img src="assets/images/gallery/IDG_20251217_204945_129/luckyhdr.jpg" alt="Night Pub" draggable="false"></div>
+      </div>
+    </div>
+    <div class="hero-overlay"></div>
+    <!-- Simulated HDR glow pulse -->
+    <div class="hdr-glow"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">ACM TOG (SIGGRAPH 2026)</div>
+    <h1>Lucky High Dynamic Range Smartphone Imaging</h1>
+    <p class="hero-subtitle">Handheld HDR photography on smartphones by aligning and merging &ldquo;lucky&rdquo; pixels from bracketed exposures &mdash; no hallucination, no tripod.</p>
+    <div class="hero-authors">
+      <span class="author-pair"><a href="https://ztmotalee.github.io" target="_blank" rel="noopener">Baiang Li</a><sup>*,1</sup></span>,
+      <span class="author-pair"><a href="https://yanruyu126.github.io" target="_blank" rel="noopener">Ruyu Yan</a><sup>*,1</sup></span>,
+      <span><a href="https://ethan-tseng.github.io" target="_blank" rel="noopener">Ethan Tseng</a><sup>1</sup></span>,
+      <span><a href="https://ztzhang.info" target="_blank" rel="noopener">Zhoutong Zhang</a><sup>2</sup></span>,
+      <span><a href="https://www.cs.princeton.edu/~af/" target="_blank" rel="noopener">Adam Finkelstein</a><sup>1</sup></span>,
+      <span><a href="https://people.csail.mit.edu/jiawen/" target="_blank" rel="noopener">Jiawen Chen</a><sup>2</sup></span>,
+      <span><a href="https://www.cs.princeton.edu/~fheide/" target="_blank" rel="noopener">Felix Heide</a><sup>&dagger;,1</sup></span>
+    </div>
+    <div class="hero-affiliations">
+      <span class="affil-item"><sup>1</sup> Princeton University</span>
+      <span class="affil-item"><sup>2</sup> Adobe</span>
+    </div>
+    <p class="cofirst"><sup>*</sup> Co-first authors &nbsp; <sup>&dagger;</sup> Corresponding author</p>
+    <div class="institute-logos">
+      <img src="assets/images/princetonu_logo.webp" alt="Princeton University" class="inst-logo">
+      <img src="assets/images/adobe_logo.webp" alt="Adobe" class="inst-logo">
+    </div>
+    <div class="hero-links">
+      <a href="#" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Paper</a>
+      <a href="#" class="btn btn-secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg> Code</a>
+      <a href="#" class="btn btn-secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Dataset</a>
+    </div>
+  </div>
+  <a href="#video" class="scroll-indicator" aria-label="Scroll down">
+    <div class="scroll-arrow"></div>
+  </a>
+</section>
+
+<!-- ==================== VIDEO ==================== -->
+<section id="video" class="section">
+  <div class="container">
+    <div class="video-container fade-in">
+      <video controls playsinline preload="metadata" style="width:100%; border-radius: var(--radius); box-shadow: var(--shadow);">
+        <source src="LuckyHDRVid.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABSTRACT ==================== -->
+<section id="abstract" class="section">
+  <div class="container container-narrow">
+    <h2 class="section-title fade-in">Abstract</h2>
+    <div class="abstract-text fade-in">
+      <p>While the human eye can perceive an impressive twenty stops of dynamic range, smartphone camera sensors remain limited to about twelve stops despite decades of research. A variety of high dynamic range (HDR) image capture and processing techniques have been proposed, and in practice they can extend the dynamic range by 3&ndash;5 stops for handheld photography. This paper proposes an approach that robustly captures dynamic range competitive with state-of-the-art methods, using a handheld smartphone camera and lightweight networks suitable for running on mobile devices.</p>
+      <p>Our method operates indirectly on linear raw pixels in bracketed exposures. Every pixel in the final HDR image is a convex combination of input pixels in the neighborhood, adjusted for exposure, and thus avoids hallucination artifacts typical of deep neural networks. We validate the efficacy of our system on both synthetic imagery and real bracketed images shot with smartphone cameras. Our iterative inference architecture is capable of processing an arbitrary number of bracketed input photos, and we show examples from bursts containing 3&ndash;9 images. Our training process relies only on synthetic captures yet generalizes to real photos. Moreover, we show that this training scheme improves other state-of-the-art methods over their pretrained counterparts.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== EXPOSURE ANIMATION ==================== -->
+<section id="exposure-demo" class="section">
+  <div class="container">
+    <h2 class="section-title fade-in">From Brackets to HDR</h2>
+    <p class="section-desc fade-in">Bracketed exposures are aligned and merged into a single HDR result. The animation plays automatically when the section scrolls into view &mdash; switch scenes with the tabs below to replay.</p>
+
+    <!-- Scene tabs (labels from mergeScenes in script.js) -->
+    <div class="scene-selector merge-scene-selector fade-in" id="mergeSceneSelector"></div>
+
+    <div class="merge-demo fade-in" id="mergeDemo">
+      <div class="merge-demo-inputs-wrap">
+        <div class="merge-inputs" id="mergeInputs"></div>
+      </div>
+      <div class="merge-arrow" aria-hidden="true">
+        <svg width="48" height="18" viewBox="0 2 60 20" preserveAspectRatio="xMidYMid meet"><path d="M0 12h55m0 0l-8-8m8 8l-8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="merge-demo-output-wrap">
+        <div class="merge-result" id="mergeResult">
+          <img id="mergeResultImg" alt="Merge result" loading="lazy">
+          <div class="merge-result-badge" id="mergeResultBadge">Base Frame</div>
+          <div class="hdr-shimmer"></div>
+        </div>
+        <div class="merge-info">
+          <p id="mergeCaption">Watching the bracket merge into the final HDR result&hellip;</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== METHOD ==================== -->
+<section id="method" class="section section-dark">
+  <div class="container">
+    <h2 class="section-title fade-in">Method Overview</h2>
+    <p class="section-desc fade-in">LuckyHDR iteratively aligns and merges bracketed frames from shortest to longest exposure, gradually building up dynamic range. No network directly predicts pixel values &mdash; instead, lightweight neural networks predict shift maps for alignment and weight maps for merging.</p>
+    <div class="method-image fade-in">
+      <div class="pan-container" id="methodPan">
+        <img src="assets/images/method/method_overview.webp" alt="LuckyHDR Method Overview" draggable="false" loading="lazy">
+      </div>
+    </div>
+    <div class="method-features">
+      <div class="feature-card fade-in" style="--delay: 0">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <h3>No Hallucination</h3>
+        <p>Output pixels are always a weighted combination of actual captured pixels &mdash; never synthesized from scratch.</p>
+      </div>
+      <div class="feature-card fade-in" style="--delay: 1">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Mobile-Ready</h3>
+        <p>Only 66K parameters &mdash; 50x smaller than HDRFlow. Runs at interactive rates on smartphone hardware.</p>
+      </div>
+      <div class="feature-card fade-in" style="--delay: 2">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+        </div>
+        <h3>Sim-to-Real</h3>
+        <p>Trained entirely on synthetic data, generalizes robustly to real handheld photographs from any camera.</p>
+      </div>
+      <div class="feature-card fade-in" style="--delay: 3">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+        </div>
+        <h3>Flexible Input</h3>
+        <p>Handles 3&ndash;5+ bracketed frames of varying exposure, iteratively improving quality with each new frame.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== KEY STATS ==================== -->
+<section id="stats" class="section">
+  <div class="container">
+    <div class="stats-strip fade-in">
+      <div class="stat-item">
+        <span class="stat-number" data-target="66">0</span><span class="stat-suffix">K</span>
+        <span class="stat-label">Parameters</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="50">0</span><span class="stat-suffix">x</span>
+        <span class="stat-label">Smaller than HDRFlow</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="62">0</span><span class="stat-suffix">ms</span>
+        <span class="stat-label">Inference (A6000)</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="40.5">0</span><span class="stat-suffix">dB</span>
+        <span class="stat-label">HDR-VDP2 (2 EV)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ATTENTION/SHIFT VIS ==================== -->
+<section id="internals" class="section">
+  <div class="container">
+    <h2 class="section-title fade-in">What the Network Sees</h2>
+    <p class="section-desc fade-in">LuckyHDR decouples HDR reconstruction into two lightweight predictions. At every iteration, one network predicts a <strong>shift map</strong> that aligns the incoming exposure, and another network predicts a <strong>weight map</strong> that decides how to blend it into the running estimate. The final pixel is always a convex combination of real captured pixels &mdash; never synthesized &mdash; which is why the method cannot hallucinate.</p>
+    <div class="explainer-grid fade-in">
+      <div class="explainer-card">
+        <h3>Shift Map</h3>
+        <p>A dense, per-pixel 2D displacement field (<em>dx, dy</em>) that warps the alternate exposure into the base frame&rsquo;s coordinates, compensating for handshake and small scene motion (swaying leaves, moving pedestrians). We predict it coarse-to-fine &mdash; a coarse stage handles up to ~52&nbsp;pixels of motion, then a residual stage refines within ~6&nbsp;pixels &mdash; so the alignment network stays tiny yet robust to both global and local motion.</p>
+        <p class="explainer-viz-hint">In the visualizations below, hue encodes direction and saturation encodes magnitude.</p>
+      </div>
+      <div class="explainer-card">
+        <h3>Weight Map</h3>
+        <p>A per-pixel blending coefficient in <em>[0,1]</em>, produced by a softmax across the base and warped-alternate frames. The network learns to upweight &ldquo;lucky&rdquo; pixels &mdash; well-exposed, unsaturated, sharp &mdash; and downweight noisy shadows, clipped highlights, or residual misalignment. Over iterations, this is equivalent to iterative alpha compositing with learned, content-aware alphas.</p>
+        <p class="explainer-viz-hint">Brighter regions indicate pixels pulled from the newly-aligned frame; darker regions keep the current estimate.</p>
+      </div>
+    </div>
+    <div class="vis-grid fade-in">
+      <!-- Row 1: Output, Shift Map 2, Shift Map 3 -->
+      <div class="vis-card">
+        <img src="assets/images/method/result_pred.webp" alt="Predicted HDR Result" loading="lazy">
+        <span class="vis-label">LuckyHDR Output</span>
+      </div>
+      <div class="vis-card">
+        <img src="assets/images/method/shift_b.webp" alt="Shift Map B" loading="lazy">
+        <span class="vis-label">Shift Map (Iter 2)</span>
+      </div>
+      <div class="vis-card">
+        <img src="assets/images/method/shift_c.webp" alt="Shift Map C" loading="lazy">
+        <span class="vis-label">Shift Map (Iter 3)</span>
+      </div>
+      <!-- Row 2: Merge Weights 1, 2, 3 -->
+      <div class="vis-card">
+        <img src="assets/images/method/attn_a.webp" alt="Attention Map A" loading="lazy">
+        <span class="vis-label">Merge Weights (Iter 1)</span>
+      </div>
+      <div class="vis-card">
+        <img src="assets/images/method/attn_b.webp" alt="Attention Map B" loading="lazy">
+        <span class="vis-label">Merge Weights (Iter 2)</span>
+      </div>
+      <div class="vis-card">
+        <img src="assets/images/method/attn_c.webp" alt="Attention Map C" loading="lazy">
+        <span class="vis-label">Merge Weights (Iter 3)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COMPARISONS ==================== -->
+<section id="comparisons" class="section section-dark">
+  <div class="container">
+    <h2 class="section-title fade-in">Comparisons</h2>
+    <p class="section-desc fade-in">Drag the slider to compare LuckyHDR against baseline methods on real handheld captures. Switch scenes with the tabs below.</p>
+
+    <!-- Scene tabs (1 scene at a time) -->
+    <div class="scene-selector fade-in">
+      <button class="scene-btn active" data-scene="seventhave">7th Avenue</button>
+      <button class="scene-btn" data-scene="bryantpark">Bryant Park</button>
+      <button class="scene-btn" data-scene="clocktower">Clock Tower</button>
+    </div>
+
+    <!-- Method selector (only baselines; inputs live in the merge demo) -->
+    <div class="method-selector fade-in">
+      <button class="method-btn active" data-method="hdrflow">HDRFlow</button>
+      <button class="method-btn" data-method="safnet">SAFNet</button>
+      <button class="method-btn" data-method="ahdrnet">AHDRNet</button>
+      <button class="method-btn" data-method="hdrtransformer">HDR-Trans.</button>
+    </div>
+
+    <!-- Single large slider (scene switched via tabs above) -->
+    <div class="comp-single fade-in">
+      <div class="comparison-slider multi-slider" data-scene="seventhave" id="mainComparisonSlider">
+        <div class="comp-image comp-left"><img class="ms-left" src="assets/images/comparisons/seventhave_hdrflow.webp" alt="Baseline" draggable="false" loading="lazy"></div>
+        <div class="comp-image comp-right"><img class="ms-right" src="assets/images/comparisons/seventhave_luckyhdr.webp" alt="LuckyHDR" draggable="false" loading="lazy"></div>
+        <div class="comp-label comp-label-left ms-label-left">HDRFlow</div>
+        <div class="comp-label comp-label-right">LuckyHDR (Ours)</div>
+        <div class="comp-handle ms-handle"><div class="comp-handle-line"></div><div class="comp-handle-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== QUANTITATIVE ==================== -->
+<section id="quantitative" class="section">
+  <div class="container">
+    <h2 class="section-title fade-in">Quantitative Results</h2>
+    <p class="section-desc fade-in">LuckyHDR achieves state-of-the-art quality with 50x fewer parameters than the nearest competitor.</p>
+    <!-- Table selector -->
+    <div class="table-selector fade-in">
+      <button class="table-tab active" data-table="2ev">Step = 2 EV</button>
+      <button class="table-tab" data-table="3ev">Step = 3 EV</button>
+      <button class="table-tab" data-table="affine">Affine (0&ndash;20 px, 3 EV)</button>
+    </div>
+
+    <!-- 2 EV Table -->
+    <div class="table-wrapper fade-in table-panel active" id="table-2ev">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>ITPI (ms)</th>
+            <th>Params (K)</th>
+            <th>PSNR<sub>l</sub> &uarr;</th>
+            <th>PSNR<sub>&mu;</sub> &uarr;</th>
+            <th>HDR-VDP2 &uarr;</th>
+            <th>LPIPS &darr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>HDR+</td><td><strong>8</strong></td><td><strong>0</strong></td><td>43.7</td><td>27.3</td><td>31.2</td><td>0.427</td></tr>
+          <tr><td>SAFNet</td><td>208</td><td>1120</td><td>44.3</td><td>30.6</td><td>31.0</td><td>0.249</td></tr>
+          <tr class="dim-row"><td>SAFNet/p</td><td>208</td><td>1120</td><td>36.8</td><td>25.5</td><td>27.3</td><td>0.460</td></tr>
+          <tr><td>AHDRNet</td><td>504</td><td>1520</td><td>40.4</td><td>30.0</td><td>29.8</td><td>0.305</td></tr>
+          <tr><td>HDRFlow</td><td>61</td><td>3270</td><td>48.7</td><td>33.2</td><td>38.1</td><td><strong>0.226</strong></td></tr>
+          <tr class="dim-row"><td>HDRFlow/p</td><td>61</td><td>3270</td><td><strong>50.2</strong></td><td>26.7</td><td>32.7</td><td>0.507</td></tr>
+          <tr><td>HDR-Trans.</td><td>9371</td><td>1220</td><td>37.9</td><td>32.0</td><td>36.7</td><td>0.267</td></tr>
+          <tr><td>AFUNet</td><td>21318</td><td>1162</td><td>38.4</td><td>27.7</td><td>35.7</td><td>0.332</td></tr>
+          <tr class="highlight-row"><td><strong>LuckyHDR (Ours)</strong></td><td>62</td><td><strong>66</strong></td><td>50.0</td><td><strong>33.6</strong></td><td><strong>40.5</strong></td><td>0.241</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3 EV Table -->
+    <div class="table-wrapper fade-in table-panel" id="table-3ev">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>ITPI (ms)</th>
+            <th>Params (K)</th>
+            <th>PSNR<sub>l</sub> &uarr;</th>
+            <th>PSNR<sub>&mu;</sub> &uarr;</th>
+            <th>HDR-VDP2 &uarr;</th>
+            <th>LPIPS &darr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>HDR+</td><td><strong>8</strong></td><td><strong>0</strong></td><td>44.1</td><td>28.4</td><td>30.6</td><td>0.338</td></tr>
+          <tr><td>SAFNet</td><td>208</td><td>1120</td><td>46.4</td><td>32.4</td><td>33.8</td><td>0.164</td></tr>
+          <tr class="dim-row"><td>SAFNet/p</td><td>208</td><td>1120</td><td>34.2</td><td>25.4</td><td>26.6</td><td>0.465</td></tr>
+          <tr><td>AHDRNet</td><td>504</td><td>1520</td><td>40.4</td><td>32.2</td><td>30.0</td><td>0.305</td></tr>
+          <tr><td>HDRFlow</td><td>61</td><td>3270</td><td>47.9</td><td>35.0</td><td>38.6</td><td>0.120</td></tr>
+          <tr class="dim-row"><td>HDRFlow/p</td><td>61</td><td>3270</td><td>49.9</td><td>26.1</td><td>31.4</td><td>0.535</td></tr>
+          <tr><td>HDR-Trans.</td><td>9371</td><td>1220</td><td>37.9</td><td>31.8</td><td>36.4</td><td>0.253</td></tr>
+          <tr><td>AFUNet</td><td>21318</td><td>1162</td><td>38.5</td><td>30.6</td><td>35.4</td><td>0.335</td></tr>
+          <tr class="highlight-row"><td><strong>LuckyHDR (Ours)</strong></td><td>62</td><td><strong>66</strong></td><td><strong>50.2</strong></td><td><strong>36.5</strong></td><td><strong>43.7</strong></td><td><strong>0.107</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affine Translation-Only Table -->
+    <div class="table-wrapper fade-in table-panel" id="table-affine">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>ITPI (ms)</th>
+            <th>Params (K)</th>
+            <th>PSNR<sub>l</sub> &uarr;</th>
+            <th>PSNR<sub>&mu;</sub> &uarr;</th>
+            <th>HDR-VDP2 &uarr;</th>
+            <th>LPIPS &darr;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>HDR+</td><td><strong>8</strong></td><td><strong>0</strong></td><td>45.5</td><td>28.0</td><td>46.8</td><td>0.308</td></tr>
+          <tr><td>SAFNet</td><td>208</td><td>1120</td><td>42.4</td><td>29.4</td><td>45.3</td><td>0.220</td></tr>
+          <tr class="dim-row"><td>SAFNet/p</td><td>208</td><td>1120</td><td>38.0</td><td>24.7</td><td>38.8</td><td>0.441</td></tr>
+          <tr><td>AHDRNet</td><td>504</td><td>1520</td><td>43.7</td><td>31.4</td><td>37.4</td><td>0.311</td></tr>
+          <tr><td>HDRFlow</td><td>61</td><td>3270</td><td>49.8</td><td>31.6</td><td>48.5</td><td>0.154</td></tr>
+          <tr class="dim-row"><td>HDRFlow/p</td><td>61</td><td>3270</td><td>51.8</td><td>26.2</td><td>44.8</td><td>0.503</td></tr>
+          <tr><td>HDR-Trans.</td><td>9371</td><td>1220</td><td>42.7</td><td>31.9</td><td>51.0</td><td>0.270</td></tr>
+          <tr><td>AFUNet</td><td>21318</td><td>1162</td><td>42.4</td><td>30.5</td><td>51.4</td><td>0.333</td></tr>
+          <tr class="highlight-row"><td><strong>LuckyHDR (Ours)</strong></td><td>62</td><td><strong>66</strong></td><td><strong>52.0</strong></td><td><strong>33.0</strong></td><td><strong>53.2</strong></td><td><strong>0.143</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-caption fade-in">Evaluation on our synthetic SI-HDR-fast test set with 3-frame input. All learning-based baselines re-trained on our data for fair comparison. /p rows use official pretrained checkpoints (dataset mismatch). ITPI benchmarked on an RTX A6000 at 1888&times;1280.</p>
+  </div>
+</section>
+
+<!-- ==================== GALLERY ==================== -->
+<section id="gallery" class="section section-dark">
+  <div class="container">
+    <h2 class="section-title fade-in">Real-World Gallery</h2>
+    <p class="section-desc fade-in">Drag the selection box on the main image to compare crop regions across methods. All images captured handheld on smartphones.</p>
+
+    <div class="rwg-body fade-in">
+      <!-- Top: one crop per method -->
+      <div class="rwg-top-crops" id="rwgTopCrops">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Bottom row: input crops left + main image right -->
+      <div class="rwg-inner-row">
+        <div class="rwg-left-crops" id="rwgLeftCrops">
+          <!-- populated by JS -->
+        </div>
+        <div class="rwg-main-wrap">
+          <div class="rwg-img-container" id="rwgImgContainer">
+            <img id="rwgMainImg" src="" alt="LuckyHDR result" draggable="false">
+            <div class="rwg-selector" id="rwgSelector"></div>
+            <div class="rwg-crop-label">LuckyHDR <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">— drag box to compare</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rwg-nav fade-in">
+      <button class="rwg-arrow" id="rwgPrev" aria-label="Previous scene">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="rwg-scene-label" id="rwgSceneLabel">Scene 1 / 6</span>
+      <button class="rwg-arrow" id="rwgNext" aria-label="Next scene">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">&times;</button>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="Full resolution">
+  </div>
+</div>
+
+<!-- ==================== BIBTEX ==================== -->
+<section id="bibtex" class="section section-dark">
+  <div class="container container-narrow">
+    <h2 class="section-title fade-in">BibTeX</h2>
+    <div class="bibtex-block fade-in">
+      <button class="copy-btn" id="copyBib" title="Copy to clipboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+<pre><code>@article{li2026luckyhdr,
+  title={Lucky High Dynamic Range Imaging},
+  author={Li, Baiang and Yan, Ruyu and Tseng, Ethan and Zhang, Zhoutong and Finkelstein, Adam and Chen, Jiawen and Heide, Felix},
+  journal={ACM Transactions on Graphics (TOG)},
+  year={2026},
+  publisher={ACM New York, NY, USA}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="container">
+    <p>Lucky High Dynamic Range Imaging &middot; ACM SIGGRAPH 2026</p>
+    <p class="footer-links">
+      <a href="https://ztmotalee.github.io" target="_blank" rel="noopener">Baiang Li</a> &middot;
+      <a href="https://yanruyu126.github.io" target="_blank" rel="noopener">Ruyu Yan</a> &middot;
+      <a href="https://ethan-tseng.github.io" target="_blank" rel="noopener">Ethan Tseng</a> &middot;
+      <a href="https://ztzhang.info" target="_blank" rel="noopener">Zhoutong Zhang</a> &middot;
+      <a href="https://www.cs.princeton.edu/~af/" target="_blank" rel="noopener">Adam Finkelstein</a> &middot;
+      <a href="https://people.csail.mit.edu/jiawen/" target="_blank" rel="noopener">Jiawen Chen</a> &middot;
+      <a href="https://www.cs.princeton.edu/~fheide/" target="_blank" rel="noopener">Felix Heide</a>
+    </p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
