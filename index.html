@@ -226,7 +226,7 @@
       <div class="explainer-card">
         <h3>Weight Map</h3>
         <p>A per-pixel blending coefficient in <em>[0,1]</em>, produced by a softmax across the base and warped-alternate frames. The network learns to upweight &ldquo;lucky&rdquo; pixels &mdash; well-exposed, unsaturated, sharp &mdash; and downweight noisy shadows, clipped highlights, or residual misalignment. Over iterations, this is equivalent to iterative alpha compositing with learned, content-aware alphas.</p>
-        <p class="explainer-viz-hint">Brighter regions indicate pixels pulled from the newly-aligned frame; darker regions keep the current estimate.</p>
+        <p class="explainer-viz-hint">Red regions indicate pixels pulled from the newly-aligned frame; blue regions keep the current estimate.</p>
       </div>
     </div>
     <div class="vis-grid fade-in">
